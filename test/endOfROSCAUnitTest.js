@@ -36,23 +36,6 @@ contract('end of ROSCA unit test', function(accounts) {
       }
     }
 
-	  it("throws if there are no more fees to be collected",
-			co(function* () {
-				let rosca = yield utils.createROSCA(ROUND_PERIOD_IN_DAYS, CONTRIBUTION_SIZE, START_TIME_DELAY,
-						MEMBER_LIST, SERVICE_FEE_IN_THOUSANDTHS);
-				yield* runFullRoscaNoWithdraw(rosca);
-				yield rosca.startRound();  // cleans up the last round
-				// foreperson must wait another round before being able to get the surplus
-				utils.increaseTime(ROUND_PERIOD);
-
-				let contractCredit = yield utils.contractNetCredit(rosca);
-				assert.isAbove(contractCredit, 0); // If this fails, there is a bug in the test.
-
-				yield rosca.endOfROSCARetrieveFees({from: accounts[9]}); // totalFees should be set to zero.
-
-				utils.assertThrows(rosca.endOfROSCARetrieveFees({from: accounts[9]}));
-		}));
-
     it("checks if endOfROSCARetrieve{Surplus,Fees} retrieve the funds when called in this order + check event",
         co(function* () {
       let rosca = yield utils.createROSCA(ROUND_PERIOD_IN_DAYS, CONTRIBUTION_SIZE, START_TIME_DELAY,
@@ -180,4 +163,21 @@ contract('end of ROSCA unit test', function(accounts) {
       utils.increaseTime(ROUND_PERIOD);
       yield rosca.endOfROSCARetrieveSurplus({from: accounts[0]});
     }));
+
+	  it("throws if there are no more fees to be collected",
+			co(function* () {
+				let rosca = yield utils.createROSCA(ROUND_PERIOD_IN_DAYS, CONTRIBUTION_SIZE, START_TIME_DELAY,
+						MEMBER_LIST, SERVICE_FEE_IN_THOUSANDTHS);
+				yield* runFullRoscaNoWithdraw(rosca);
+				yield rosca.startRound();  // cleans up the last round
+				// foreperson must wait another round before being able to get the surplus
+				utils.increaseTime(ROUND_PERIOD);
+
+				let contractCredit = yield utils.contractNetCredit(rosca);
+				assert.isAbove(contractCredit, 0); // If this fails, there is a bug in the test.
+
+				yield rosca.endOfROSCARetrieveFees({from: accounts[9]}); // totalFees should be set to zero.
+
+				utils.assertThrows(rosca.endOfROSCARetrieveFees({from: accounts[9]}));
+		}));
 });
